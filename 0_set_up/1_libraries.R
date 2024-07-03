@@ -1,7 +1,7 @@
 ####***********************
 #### Code Description ####
-# Author: Vivian  
-# Date: 4/13/23
+# Author: Vivian Do
+# Date: 4/13/23 
 # Goal: Set up directories and libraries for project
 ####**********************
 
