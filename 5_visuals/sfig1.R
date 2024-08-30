@@ -62,7 +62,7 @@ nrow(po_exposure %>%
 
 # seasonal
 po_seasonal <- po_exposure %>% 
-  group_by(urbanicity, month = month(DayDateTime)) %>% 
+  group_by(urbanicity, month = month(DayDateTime, label = TRUE)) %>% 
   summarise(t10_lg1_tot = sum(tot_hr_gte_10_lag0, na.rm = TRUE)) %>% 
   mutate(t10_lg1_pct = t10_lg1_tot/sum(t10_lg1_tot)*100) %>% 
   rename(Urbanicity = urbanicity) %>% 

@@ -36,19 +36,19 @@ nyc_zctas <- read_csv(paste0(path_data, "urban_rural_pop/Modified_Zip_Code_Tabul
 # nyc zctas will be labeled nyc
 # zctas with >50% rural population are rural, else urban 
 
-zcta_urbanicity <- read_csv(paste0(path_data, "urban_rural_pop/nhgis0037_ds172_2010_zcta.csv")) %>% 
-  select(ZCTA5A, starts_with("H7W")) %>% 
-  rename(zcta = ZCTA5A,
-         total = H7W001,
-         urban = H7W002,
-         rural = H7W005) %>% 
+zcta_urbanicity <- read_csv(paste0(path_data, "urban_rural_pop/nhgis0045_ds258_2020_zcta.csv")) %>% 
+  select(ZCTAA, starts_with("U7I")) %>% 
+  rename(zcta = ZCTAA,
+         total = U7I001,
+         urban = U7I002,
+         rural = U7I003) %>% 
   mutate(urbanicity = case_when(zcta %in% nyc_zctas$zcta ~ "nyc",
                                 rural/total > 0.5 ~ "rural",
                                 rural/total <= 0.5 ~ "urban")) %>% 
   filter(zcta %in% valid_zips_ny$ZCTA) %>% 
   write_csv(., paste0(path_data, "data_process/zcta_urbanicity.csv"))
 
-length(unique(zcta_urbanicity$zcta)) #1794 unique zctas, which is NY state specific number
+length(unique(zcta_urbanicity$zcta)) #1785 unique zctas, which is NY state specific number
 
 # Check spatial distribution ----------------------------------------------
 zcta_urbanicity <- read_csv(paste0(path_data, "data_process/zcta_urbanicity.csv"))
