@@ -32,7 +32,7 @@ head(as.data.frame(em_results_social_vars), n = 25)
 em_results_season <- read_csv(paste0(path_results, "em_results_season.csv")) %>% 
   mutate(em_var = "season") %>% 
   filter(mod_custout_thresh == "10",
-         mod_exp_lag == "lag1") %>% 
+         mod_exp_lag == "lag1_lag3") %>% 
   rename(r_geo_strata = mod_geo_strata,
          r_hr_custout_thresh = mod_custout_thresh,
          r_exp_lag = mod_exp_lag,

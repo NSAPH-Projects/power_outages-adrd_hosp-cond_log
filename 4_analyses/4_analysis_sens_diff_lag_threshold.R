@@ -191,7 +191,7 @@ season <- c("warm", "cool")
 
 season_results <- data.frame()
 for (c in 1:length(custout_thresh)){
-  for (e in 1:length(exp_lag)){
+  for (exp in 1:length(exp_lag)){
     for (g in 1:length(geo_strata)){
       print(geo_strata[g])
       for (s in 1:length(season)){
@@ -212,26 +212,27 @@ for (c in 1:length(custout_thresh)){
           mod_tmp_var <- "tmax"
           n_case_days_total <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == season[s],
                      Case == 1) %>%
               distinct(new_id)
           )
           n_case_days_contrast <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]]) %>% 
+              # filter(!!sym(em_var[e]) == em_level[[em]]) %>% 
               group_by(new_id) %>%
               mutate(n_outages_in_strata = sum(get(
                 paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
               ), na.rm = TRUE)) %>%
               filter(row_number() == 1) %>%
               filter(urbanicity == geo_strata[g],
+                     season == season[s],
                      n_outages_in_strata > 0)
           )
           n_case_days_exposed <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == season[s],
                      Case == 1,
                      if_any(all_of(
                        paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
@@ -258,26 +259,27 @@ for (c in 1:length(custout_thresh)){
           mod_tmp_var <- "tmin"
           n_case_days_total <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == season[s],
                      Case == 1) %>%
               distinct(new_id)
           )
           n_case_days_contrast <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]]) %>% 
+              # filter(!!sym(em_var[e]) == em_level[[em]]) %>% 
               group_by(new_id) %>%
               mutate(n_outages_in_strata = sum(get(
                 paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
               ), na.rm = TRUE)) %>%
               filter(row_number() == 1) %>%
               filter(urbanicity == geo_strata[g],
+                     season == season[s],
                      n_outages_in_strata > 0)
           )
           n_case_days_exposed <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == season[s],
                      Case == 1,
                      if_any(all_of(
                        paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )

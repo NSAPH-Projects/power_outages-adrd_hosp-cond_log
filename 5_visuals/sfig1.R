@@ -61,14 +61,48 @@ nrow(po_exposure %>%
 
 
 # seasonal
-po_seasonal <- po_exposure %>% 
-  group_by(urbanicity, month = month(DayDateTime, label = TRUE)) %>% 
-  summarise(t10_lg1_tot = sum(tot_hr_gte_10_lag0, na.rm = TRUE)) %>% 
-  mutate(t10_lg1_pct = t10_lg1_tot/sum(t10_lg1_tot)*100) %>% 
-  rename(Urbanicity = urbanicity) %>% 
-  mutate(Urbanicity = case_when(Urbanicity == "nyc" ~ "NYC",
-                                Urbanicity == "urban" ~ "Urban",
-                                Urbanicity == "rural" ~ "Rural"))
+po_seasonal <- po_exposure %>%
+  group_by(urbanicity, month = month(DayDateTime)) %>%
+  summarise(t10_lg1_tot = sum(tot_hr_gte_10_lag0, na.rm = TRUE)) %>%
+  mutate(t10_lg1_pct = t10_lg1_tot / sum(t10_lg1_tot) * 100) %>%
+  rename(Urbanicity = urbanicity) %>%
+  mutate(
+    Urbanicity = case_when(
+      Urbanicity == "nyc" ~ "NYC",
+      Urbanicity == "urban" ~ "Urban",
+      Urbanicity == "rural" ~ "Rural"
+    ),
+    month = factor(
+      case_when(
+        month == 1 ~ "January",
+        month == 2 ~ "February",
+        month == 3 ~ "March",
+        month == 4 ~ "April",
+        month == 5 ~ "May",
+        month == 6 ~ "June",
+        month == 7 ~ "July",
+        month == 8 ~ "August",
+        month == 9 ~ "September",
+        month == 10 ~ "October",
+        month == 11 ~ "November",
+        month == 12 ~ "December"
+      ),
+      levels = c(
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      )
+    )
+  )
 
 po_seasonal$Urbanicity <- factor(po_seasonal$Urbanicity, levels = c("NYC", "Urban", "Rural"))
 s <- ggplot(po_seasonal, aes(x = as.factor(month), y = t10_lg1_tot, fill = Urbanicity)) +
@@ -76,7 +110,8 @@ s <- ggplot(po_seasonal, aes(x = as.factor(month), y = t10_lg1_tot, fill = Urban
   facet_wrap(~Urbanicity, scales = "free_y", nrow = 3) +
   labs(x = "Month", y = "Count of power outages") +
   theme(legend.position = "none",
-        text = element_text(size = 15))
+        text = element_text(size = 15),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
 ggsave(plot = s,
        "/n/dominici_nsaph_l3/Lab/projects/power_outages-adrd_hosp-cond_log/figures/sfig1_thresh10_lag1_seasonality.png",

@@ -2,7 +2,7 @@
 #### Code Description ####
 # Author: Vivian  
 # Date: 11/29/23
-# Goal: Run analysis - main
+# Goal: Run analysis - main and sensitivity
 # spatial scale: zcta
 # temporal scale: daily
 # study design - case crossover
@@ -191,93 +191,93 @@ season <- c("warm", "cool")
 
 season_results <- data.frame()
 for (c in 1:length(custout_thresh)){
-  for (e in 1:length(exp_lag)){
+  for (exp in 1:length(exp_lag)){
     for (g in 1:length(geo_strata)){
       print(geo_strata[g])
       for (s in 1:length(season)){
         
         if (season[s] == "warm"){
-          
+
           # establish dynamic formula for clogit
           dyn_formula <- as.formula(paste0("Case ~ tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] ,
                                            "+ ns(tmax, df = ", warm_aic_tmax[g], ")",
                                            "+ ns(prcp, df = ", warm_aic_prcp[g], ")",
                                            "+ strata(new_id)")
           )
-          
+
           mod <- clogit(dyn_formula,
                         method = "efron",
                         data = data4casecross_ind %>% filter(urbanicity == geo_strata[g],
-                                                             season == season[s]))
+                                                             season == "warm"))
           mod_tmp_var <- "tmax"
           n_case_days_total <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == "warm",
                      Case == 1) %>%
               distinct(new_id)
           )
           n_case_days_contrast <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]]) %>% 
               group_by(new_id) %>%
               mutate(n_outages_in_strata = sum(get(
                 paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
               ), na.rm = TRUE)) %>%
               filter(row_number() == 1) %>%
               filter(urbanicity == geo_strata[g],
+                     season == "warm",
                      n_outages_in_strata > 0)
           )
           n_case_days_exposed <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == "warm",
                      Case == 1,
                      if_any(all_of(
                        paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
                      ), ~ . > 0)) %>%
               distinct(new_id)
           )
-          
+
         }
-        
+
         if (season[s] == "cool"){
-          
+
           # establish dynamic formula for clogit
           dyn_formula <- as.formula(paste0("Case ~ tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] ,
                                            "+ ns(tmin, df = ", cool_aic_tmin[g], ")",
                                            "+ ns(prcp, df = ", cool_aic_prcp[g], ")",
                                            "+ strata(new_id)")
           )
-          
+
           mod <- clogit(dyn_formula,
                         method = "efron",
                         data = data4casecross_ind %>% filter(urbanicity == geo_strata[g],
-                                                             season == season[s]))
-          
+                                                             season == "cool"))
+
           mod_tmp_var <- "tmin"
           n_case_days_total <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == "cool",
                      Case == 1) %>%
               distinct(new_id)
           )
           n_case_days_contrast <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]]) %>% 
               group_by(new_id) %>%
               mutate(n_outages_in_strata = sum(get(
                 paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
               ), na.rm = TRUE)) %>%
               filter(row_number() == 1) %>%
               filter(urbanicity == geo_strata[g],
+                     season == "cool",
                      n_outages_in_strata > 0)
           )
           n_case_days_exposed <- nrow(
             data4casecross_ind %>%
-              filter(!!sym(em_var[e]) == em_level[[em]],
-                     urbanicity == geo_strata[g],
+              filter(urbanicity == geo_strata[g],
+                     season == "cool",
                      Case == 1,
                      if_any(all_of(
                        paste0("tot_hr_gte_", custout_thresh[c], "_", exp_lag[exp] )
@@ -285,17 +285,17 @@ for (c in 1:length(custout_thresh)){
               distinct(new_id)
           )
         }
-        
+
         mod_geo_strata <- geo_strata[g]
         mod_custout_thresh <- custout_thresh[c]
-        mod_exp_lag <- exp_lag[exp] 
+        mod_exp_lag <- exp_lag[exp]
         mod_season <- season[s]
         est <- round(exp(coef(mod))[1], 4)
         lci <- round(exp(confint(mod))[1,1], 4)
         uci <- round(exp(confint(mod))[1,2], 4)
-        output <- cbind(mod_geo_strata, mod_custout_thresh, mod_exp_lag, mod_tmp_var, mod_season, est, lci, uci, 
+        output <- cbind(mod_geo_strata, mod_custout_thresh, mod_exp_lag, mod_tmp_var, mod_season, est, lci, uci,
                         n_case_days_total, n_case_days_contrast, n_case_days_exposed)
-        
+
         season_results <- rbind(season_results, output)
         
       }
